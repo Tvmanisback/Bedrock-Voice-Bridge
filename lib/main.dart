@@ -23,7 +23,7 @@ class _MicPageState extends State<MicPage>{
   try{
    if(!await recorder.hasPermission())throw Exception('Microphone permission denied');
    await playback.openPlayer();playerReady=true;
-   await playback.startPlayerFromStream(codec:Codec.pcm16,numChannels:1,sampleRate:48000,bufferSize:8192);
+   await playback.startPlayerFromStream(codec:Codec.pcm16,numChannels:1,sampleRate:48000,bufferSize:8192,interleaved:true);
    final c=WebSocketChannel.connect(Uri.parse(url));channel=c;await c.ready.timeout(const Duration(seconds:12));
    messages=c.stream.listen((raw){try{final j=jsonDecode(raw as String) as Map<String,dynamic>;if(j['type']=='error'){if(mounted)setState(()=>status='Server error: '+j['message'].toString());}else if(j['type']=='connected'){if(mounted)setState(()=>status='Connected as '+j['player'].toString());}else if(j['type']=='audio'&&j['data'] is String){final bytes=base64Decode(j['data'] as String);if(playerReady)playback.feedFromStream(Uint8List.fromList(bytes));}}catch(e){if(mounted)setState(()=>status='Audio decode error: '+e.toString());}},onError:(e){if(mounted)setState(()=>status='Socket error: '+e.toString());disconnect();},onDone:disconnect);
    c.sink.add(jsonEncode({'type':'auth','player':playerName.text.trim(),'code':pairCode.text.trim()}));
