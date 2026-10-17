@@ -1,6 +1,6 @@
 # Bedrock Voice Bridge
 
-**Downloads: use GitHub Releases
+**Downloads: use GitHub Releases**
 
 Open [Releases](https://github.com/Tvmanisback/Bedrock-Voice-Bridge/releases) and download the published assets there. The workflow is configured to publish assets when a version tag such as `v1.0.0` is pushed.
 
