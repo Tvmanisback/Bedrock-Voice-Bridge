@@ -1,12 +1,14 @@
-BEDROCK VOICE BRIDGE — REQUIRED ADD-ON
+BEDROCK VOICE BRIDGE — REQUIRED SERVER ADD-ON
 
-Install this add-on to use Bedrock Voice Bridge on supported multiplayer servers.
+This add-on is required on supported Minecraft Bedrock multiplayer servers.
 
-The add-on contains the in-game voice settings and controls, including mute options. The Bedrock Voice Bridge app is only for microphone access and connecting your audio.
+In-game, type !voice in chat to open the Bedrock Voice Bridge menu. Use it to mute/unmute yourself, turn voice features on or off, and change voice preferences.
+
+The add-on handles in-game settings and controls. The separate Bedrock Voice Bridge app is only for microphone access and the audio connection.
 
 Coming soon: support for worlds outside multiplayer servers.
 
-Get the app and the latest add-on from:
+Get the app from the Releases page:
 https://github.com/Tvmanisback/Bedrock-Voice-Bridge/releases
 
-Server support may vary. Check that your server supports Bedrock Voice Bridge before playing.
+Note: these are in-game controls. Actual voice transmission still requires a compatible server and companion app; the add-on alone cannot access your device microphone.
