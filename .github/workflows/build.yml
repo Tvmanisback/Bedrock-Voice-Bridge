@@ -15,10 +15,35 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: {channel: stable, cache: true}
       - run: flutter create --platforms=android --project-name bedrock_voice_bridge .
-      - name: Add microphone permission
-        run: sed -i 's#<application#<uses-permission android:name="android.permission.RECORD_AUDIO"/>\n    <application#' android/app/src/main/AndroidManifest.xml
+      - name: Configure Android microphone permission and SDK
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("android/app/src/main/AndroidManifest.xml")
+          s = p.read_text()
+          permission = '<uses-permission android:name="android.permission.RECORD_AUDIO"/>'
+          if permission not in s:
+              s = s.replace("<application", permission + "\\n    <application", 1)
+          p.write_text(s)
+          gradle_kts = Path("android/app/build.gradle.kts")
+          gradle_groovy = Path("android/app/build.gradle")
+          p = gradle_kts if gradle_kts.exists() else gradle_groovy
+          if not p.exists():
+              raise SystemExit("Flutter did not generate the Android app Gradle file")
+          s = p.read_text()
+          if "minSdk = flutter.minSdkVersion" in s:
+              s = s.replace("minSdk = flutter.minSdkVersion", "minSdk = 23")
+          elif "minSdkVersion flutter.minSdkVersion" in s:
+              s = s.replace("minSdkVersion flutter.minSdkVersion", "minSdkVersion 23")
+          elif "minSdk = 23" not in s and "minSdkVersion 23" not in s:
+              raise SystemExit("Could not safely set Android minSdk to 23")
+          p.write_text(s)
+          print("Android microphone permission and minimum SDK configured.")
+          PY
       - run: flutter clean
       - run: flutter pub get
+      - run: flutter analyze --no-pub
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with: {name: android-test-build, path: build/app/outputs/flutter-apk/app-release.apk}
