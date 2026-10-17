@@ -1,0 +1,35 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Bedrock Voice Bridge Companion",
+    "description": "Companion add-on for Bedrock Voice Bridge. Get the microphone app from GitHub Releases.",
+    "uuid": "68d0fbd1-9cc6-48b6-9c0f-b5ab0ce7f7b4",
+    "version": [
+      1,
+      0,
+      0
+    ],
+    "min_engine_version": [
+      1,
+      20,
+      0
+    ]
+  },
+  "modules": [
+    {
+      "type": "data",
+      "uuid": "f6d2c8a9-52ab-4b66-8d3b-5a7eebcfaf32",
+      "version": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "metadata": {
+    "authors": [
+      "Bedrock Voice Bridge"
+    ],
+    "license": "MIT"
+  }
+}
