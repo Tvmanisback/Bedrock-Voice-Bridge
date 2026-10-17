@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:record/record.dart';
-import 'package:flutter_sound/flutter_sound.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 void main()=>runApp(const BvbApp());
@@ -12,9 +11,9 @@ class MicPage extends StatefulWidget{const MicPage({super.key});@override State<
 class _MicPageState extends State<MicPage>{
  final server=TextEditingController(text:'ws://YOUR_SERVER_IP:24454');
  final playerName=TextEditingController(),pairCode=TextEditingController();
- final recorder=AudioRecorder(); final playback=FlutterSoundPlayer();
+ final recorder=AudioRecorder();
  WebSocketChannel? channel; StreamSubscription<Uint8List>? microphone; StreamSubscription<dynamic>? messages;
- String status='Disconnected'; bool connected=false,muted=false,busy=false,playerReady=false;
+ String status='Disconnected'; bool connected=false,muted=false,busy=false;
  Future<void> connect() async {
   final url=server.text.trim();
   if(busy||connected)return;
@@ -22,10 +21,8 @@ class _MicPageState extends State<MicPage>{
   setState(()=>busy=true);
   try{
    if(!await recorder.hasPermission())throw Exception('Microphone permission denied');
-   await playback.openPlayer();playerReady=true;
-   await playback.startPlayerFromStream(codec:Codec.pcm16,numChannels:1,sampleRate:48000,bufferSize:8192,interleaved:true);
    final c=WebSocketChannel.connect(Uri.parse(url));channel=c;await c.ready.timeout(const Duration(seconds:12));
-   messages=c.stream.listen((raw){try{final j=jsonDecode(raw as String) as Map<String,dynamic>;if(j['type']=='error'){if(mounted)setState(()=>status='Server error: '+j['message'].toString());}else if(j['type']=='connected'){if(mounted)setState(()=>status='Connected as '+j['player'].toString());}else if(j['type']=='audio'&&j['data'] is String){final bytes=base64Decode(j['data'] as String);if(playerReady)playback.feedFromStream(Uint8List.fromList(bytes));}}catch(e){if(mounted)setState(()=>status='Audio decode error: '+e.toString());}},onError:(e){if(mounted)setState(()=>status='Socket error: '+e.toString());disconnect();},onDone:disconnect);
+   messages=c.stream.listen((raw){try{final j=jsonDecode(raw as String) as Map<String,dynamic>;if(j['type']=='error'){if(mounted)setState(()=>status='Server error: '+j['message'].toString());}else if(j['type']=='connected'){if(mounted)setState(()=>status='Connected as '+j['player'].toString());}}catch(e){if(mounted)setState(()=>status='Audio decode error: '+e.toString());}},onError:(e){if(mounted)setState(()=>status='Socket error: '+e.toString());disconnect();},onDone:disconnect);
    c.sink.add(jsonEncode({'type':'auth','player':playerName.text.trim(),'code':pairCode.text.trim()}));
    final stream=await recorder.startStream(const RecordConfig(encoder:AudioEncoder.pcm16bits,sampleRate:48000,numChannels:1,echoCancel:true,noiseSuppress:true));
    connected=true;
@@ -38,7 +35,6 @@ class _MicPageState extends State<MicPage>{
   connected=false;await microphone?.cancel();microphone=null;await messages?.cancel();messages=null;
   try{if(await recorder.isRecording())await recorder.stop();}catch(_){}
   try{await channel?.sink.close();}catch(_){}channel=null;
-  if(playerReady){try{await playback.stopPlayer();await playback.closePlayer();}catch(_){}playerReady=false;}
   if(mounted)setState(()=>status='Disconnected');
  }
  @override void dispose(){disconnect();recorder.dispose();server.dispose();playerName.dispose();pairCode.dispose();super.dispose();}
