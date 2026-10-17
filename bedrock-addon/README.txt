@@ -1,6 +1,12 @@
-Bedrock Voice Bridge Companion Add-on 1.0.0
+BEDROCK VOICE BRIDGE — REQUIRED ADD-ON
 
-This add-on is a companion/info pack only. Bedrock add-ons cannot access the operating-system microphone. To use voice chat, download the native microphone app from the GitHub Releases page:
+Install this add-on to use Bedrock Voice Bridge on supported multiplayer servers.
+
+The add-on contains the in-game voice settings and controls, including mute options. The Bedrock Voice Bridge app is only for microphone access and connecting your audio.
+
+Coming soon: support for worlds outside multiplayer servers.
+
+Get the app and the latest add-on from:
 https://github.com/Tvmanisback/Bedrock-Voice-Bridge/releases
 
-Do not download from Actions Artifacts. A compatible voice server is required. This add-on does not itself provide voice chat.
+Server support may vary. Check that your server supports Bedrock Voice Bridge before playing.
