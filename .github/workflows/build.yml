@@ -1,11 +1,12 @@
-name: Build Bedrock Voice Bridge 1.0.0
+name: Build and publish Bedrock Voice Bridge
 on:
   push:
     branches: [main, master]
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   android:
     runs-on: ubuntu-latest
@@ -14,12 +15,12 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: {channel: stable, cache: true}
       - run: flutter create --platforms=android --project-name bedrock_voice_bridge .
-      - name: Declare Android microphone permission
+      - name: Add microphone permission
         run: sed -i 's#<application#<uses-permission android:name="android.permission.RECORD_AUDIO"/>\n    <application#' android/app/src/main/AndroidManifest.xml
       - run: flutter pub get
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
-        with: {name: bvb-1.0.0-android-apk, path: build/app/outputs/flutter-apk/app-release.apk}
+        with: {name: android-test-build, path: build/app/outputs/flutter-apk/app-release.apk}
   ios:
     runs-on: macos-latest
     steps:
@@ -27,12 +28,12 @@ jobs:
       - uses: subosito/flutter-action@v2
         with: {channel: stable, cache: true}
       - run: flutter create --platforms=ios --project-name bedrock_voice_bridge .
-      - name: Add microphone usage description
-        run: /usr/libexec/PlistBuddy -c 'Add :NSMicrophoneUsageDescription string Bedrock Voice Bridge uses your microphone for proximity voice chat.' ios/Runner/Info.plist
+      - name: Add microphone usage text
+        run: /usr/libexec/PlistBuddy -c 'Add :NSMicrophoneUsageDescription string Bedrock Voice Bridge uses your microphone for voice chat.' ios/Runner/Info.plist
       - run: flutter pub get
       - run: flutter build ipa --no-codesign
       - uses: actions/upload-artifact@v4
-        with: {name: bvb-1.0.0-ios-unsigned, path: build/ios/ipa/*.ipa, if-no-files-found: warn}
+        with: {name: ios-unsigned-test-build, path: build/ios/ipa/*.ipa, if-no-files-found: warn}
   windows:
     runs-on: windows-latest
     steps:
@@ -42,17 +43,62 @@ jobs:
       - run: flutter create --platforms=windows --project-name bedrock_voice_bridge .
       - run: flutter pub get
       - run: flutter build windows --release
-      - shell: pwsh
-        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath bedrock-voice-bridge-1.0.0-windows.zip
+      - name: Install Inno Setup
+        run: choco install innosetup --yes --no-progress
+      - name: Create installer script
+        shell: pwsh
+        run: |
+          @'
+          [Setup]
+          AppId={{A73D4B5C-7C3B-4B88-9D37-BC4B8F91D110}
+          AppName=Bedrock Voice Bridge
+          AppVersion=1.0.0
+          DefaultDirName={autopf}\Bedrock Voice Bridge
+          DefaultGroupName=Bedrock Voice Bridge
+          OutputDir=installer
+          OutputBaseFilename=BedrockVoiceBridge-Setup-1.0.0
+          ArchitecturesInstallIn64BitMode=x64
+          Compression=lzma2
+          SolidCompression=yes
+          WizardStyle=modern
+          [Files]
+          Source: "build\windows\x64\runner\Release\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+          [Icons]
+          Name: "{autoprograms}\Bedrock Voice Bridge"; Filename: "{app}\bedrock_voice_bridge.exe"
+          Name: "{autodesktop}\Bedrock Voice Bridge"; Filename: "{app}\bedrock_voice_bridge.exe"
+          '@ | Set-Content installer.iss
+          New-Item -ItemType Directory -Force installer | Out-Null
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
       - uses: actions/upload-artifact@v4
-        with: {name: bvb-1.0.0-windows, path: bedrock-voice-bridge-1.0.0-windows.zip}
-  plugin:
+        with: {name: windows-installer-test-build, path: installer/BedrockVoiceBridge-Setup-1.0.0.exe}
+  bedrock-addon:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with: {distribution: temurin, java-version: '21'}
-      - uses: gradle/actions/setup-gradle@v4
-      - run: gradle -p server-plugin clean build --no-daemon
+      - name: Package Bedrock add-on
+        run: |
+          mkdir -p dist
+          cd bedrock-addon
+          zip -r ../dist/BedrockVoiceBridge-Addon-1.0.0.mcaddon .
       - uses: actions/upload-artifact@v4
-        with: {name: bvb-1.0.0-server-plugin, path: server-plugin/build/libs/*.jar}
+        with: {name: bedrock-addon-test-build, path: dist/BedrockVoiceBridge-Addon-1.0.0.mcaddon}
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [android, ios, windows, bedrock-addon]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: {path: release-files, merge-multiple: false}
+      - name: Flatten release assets
+        run: |
+          mkdir -p release
+          find release-files -type f -exec cp {} release/ \;
+          ls -la release
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Bedrock Voice Bridge ${{ github.ref_name }}
+          body: |
+            Download the installer/add-on below from **Assets** on this GitHub Release.
+            Do not download from Actions → Artifacts; those are development build outputs.
+            Note: this build is a test candidate. The Bedrock add-on does not itself capture microphone audio; install the companion app and use a compatible voice server.
+          files: release/*
