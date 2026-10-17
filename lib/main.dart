@@ -22,13 +22,13 @@ class _MicPageState extends State<MicPage>{
   try{
    if(!await recorder.hasPermission())throw Exception('Microphone permission denied');
    final c=WebSocketChannel.connect(Uri.parse(url));channel=c;await c.ready.timeout(const Duration(seconds:12));
-   messages=c.stream.listen((raw){try{final j=jsonDecode(raw as String) as Map<String,dynamic>;if(j['type']=='error'){if(mounted)setState(()=>status='Server error: '+j['message'].toString());}else if(j['type']=='connected'){if(mounted)setState(()=>status='Connected as '+j['player'].toString());}}catch(e){if(mounted)setState(()=>status='Audio decode error: '+e.toString());}},onError:(e){if(mounted)setState(()=>status='Socket error: '+e.toString());disconnect();},onDone:disconnect);
+   messages=c.stream.listen((raw){try{final j=jsonDecode(raw as String) as Map<String,dynamic>;if(j['type']=='error'){if(mounted)setState(()=>status='Server error: ${j['message']}');}else if(j['type']=='connected'){if(mounted)setState(()=>status='Connected as ${j['player']}');}}catch(e){if(mounted)setState(()=>status='Audio decode error: $e');}},onError:(e){if(mounted)setState(()=>status='Socket error: $e');disconnect();},onDone:disconnect);
    c.sink.add(jsonEncode({'type':'auth','player':playerName.text.trim(),'code':pairCode.text.trim()}));
    final stream=await recorder.startStream(const RecordConfig(encoder:AudioEncoder.pcm16bits,sampleRate:48000,numChannels:1,echoCancel:true,noiseSuppress:true));
    connected=true;
    microphone=stream.listen((bytes){if(!connected||muted)return;try{c.sink.add(jsonEncode({'type':'pcm','format':'s16le','sampleRate':48000,'channels':1,'data':base64Encode(bytes)}));}catch(_){}});
    setState(()=>status='Connected. Voice is proximity-based.');
-  }catch(e){if(mounted)setState(()=>status='Could not connect: '+e.toString());await disconnect();}
+  }catch(e){if(mounted)setState(()=>status='Could not connect: $e');await disconnect();}
   finally{if(mounted)setState(()=>busy=false);}
  }
  Future<void> disconnect()async{
