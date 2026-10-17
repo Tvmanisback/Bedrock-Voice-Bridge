@@ -71,7 +71,7 @@ world.afterEvents.playerSpawn.subscribe((event) => {
   }, 40);
 });
 
-world.beforeEvents.playerLeave.subscribe((event) => {
+world.afterEvents.playerLeave.subscribe((event) => {
   mutedPlayers.delete(event.player.id);
   voiceSettings.delete(event.player.id);
 });
