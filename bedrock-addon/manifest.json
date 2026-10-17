@@ -1,8 +1,8 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Bedrock Voice Bridge Companion",
-    "description": "Companion add-on for Bedrock Voice Bridge. Get the microphone app from GitHub Releases.",
+    "name": "Bedrock Voice Bridge",
+    "description": "Required server add-on for in-game voice settings and mute controls.",
     "uuid": "68d0fbd1-9cc6-48b6-9c0f-b5ab0ce7f7b4",
     "version": [
       1,
@@ -11,7 +11,7 @@
     ],
     "min_engine_version": [
       1,
-      20,
+      21,
       0
     ]
   },
@@ -24,6 +24,27 @@
         0,
         0
       ]
+    },
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "0d3b8907-7b3a-4d10-9a6b-cf86e2b16c44",
+      "version": [
+        1,
+        0,
+        0
+      ],
+      "entry": "scripts/main.js"
+    }
+  ],
+  "dependencies": [
+    {
+      "module_name": "@minecraft/server",
+      "version": "2.0.0"
+    },
+    {
+      "module_name": "@minecraft/server-ui",
+      "version": "2.0.0"
     }
   ],
   "metadata": {
