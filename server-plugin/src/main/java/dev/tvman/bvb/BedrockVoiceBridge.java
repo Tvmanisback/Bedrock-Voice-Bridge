@@ -57,7 +57,7 @@ public final class BedrockVoiceBridge extends JavaPlugin {
      if(playerId==null){sendError(conn,"Invalid or expired pairing code. Run /bvb pair again.");return;}
      Player p=Bukkit.getPlayer(playerId); if(p==null||!p.isOnline()){sendError(conn,"Minecraft player is no longer online.");return;}
      codes.remove(playerId,found);
-     UUID previous=clients.entrySet().stream().filter(e->e.getValue().equals(playerId)).map(Map.Entry::getKey).map(x->(UUID)null).findFirst().orElse(null);
+     clients.entrySet().removeIf(e -> e.getValue().equals(playerId));
      clients.put(conn,playerId); JsonObject ok=new JsonObject();ok.addProperty("type","connected");ok.addProperty("player",p.getName());ok.addProperty("version","1.0.0");conn.send(gson.toJson(ok));return;
     }
     UUID senderId=clients.get(conn); if(senderId==null){sendError(conn,"Authenticate first using a pairing code.");return;}
