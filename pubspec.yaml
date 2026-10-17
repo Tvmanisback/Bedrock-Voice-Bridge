@@ -1,0 +1,13 @@
+name: bedrock_voice_bridge
+description: Native microphone companion for Bedrock Voice Bridge
+publish_to: none
+version: 0.1.0+1
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  record: ^6.0.0
+  web_socket_channel: ^3.0.1
+flutter:
+  uses-material-design: true
