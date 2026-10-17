@@ -55,10 +55,11 @@ public final class BedrockVoiceBridge extends JavaPlugin {
      String code=j.get("code").getAsString(); UUID playerId=null; PairCode found=null;
      for(var e:codes.entrySet())if(e.getValue().value.equals(code)&&e.getValue().expiresAt>System.currentTimeMillis()){playerId=e.getKey();found=e.getValue();break;}
      if(playerId==null){sendError(conn,"Invalid or expired pairing code. Run /bvb pair again.");return;}
-     Player p=Bukkit.getPlayer(playerId); if(p==null||!p.isOnline()){sendError(conn,"Minecraft player is no longer online.");return;}
-     codes.remove(playerId,found);
-     clients.entrySet().removeIf(e -> e.getValue().equals(playerId));
-     clients.put(conn,playerId); JsonObject ok=new JsonObject();ok.addProperty("type","connected");ok.addProperty("player",p.getName());ok.addProperty("version","1.0.0");conn.send(gson.toJson(ok));return;
+     final UUID authenticatedPlayerId = playerId;
+     Player p=Bukkit.getPlayer(authenticatedPlayerId); if(p==null||!p.isOnline()){sendError(conn,"Minecraft player is no longer online.");return;}
+     codes.remove(authenticatedPlayerId,found);
+     clients.entrySet().removeIf(e -> e.getValue().equals(authenticatedPlayerId));
+     clients.put(conn,authenticatedPlayerId); JsonObject ok=new JsonObject();ok.addProperty("type","connected");ok.addProperty("player",p.getName());ok.addProperty("version","1.0.0");conn.send(gson.toJson(ok));return;
     }
     UUID senderId=clients.get(conn); if(senderId==null){sendError(conn,"Authenticate first using a pairing code.");return;}
     if(type.equals("pcm")) {
