@@ -1,4 +1,4 @@
-name: Build apps and server plugin
+name: Build Bedrock Voice Bridge 1.0.0
 on:
   push:
     branches: [main, master]
@@ -12,60 +12,47 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
+        with: {channel: stable, cache: true}
       - run: flutter create --platforms=android --project-name bedrock_voice_bridge .
+      - name: Declare Android microphone permission
+        run: sed -i 's#<application#<uses-permission android:name="android.permission.RECORD_AUDIO"/>\n    <application#' android/app/src/main/AndroidManifest.xml
       - run: flutter pub get
-      - run: flutter build apk --debug
+      - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
-        with:
-          name: bvb-android-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
+        with: {name: bvb-1.0.0-android-apk, path: build/app/outputs/flutter-apk/app-release.apk}
   ios:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
+        with: {channel: stable, cache: true}
       - run: flutter create --platforms=ios --project-name bedrock_voice_bridge .
+      - name: Add microphone usage description
+        run: /usr/libexec/PlistBuddy -c 'Add :NSMicrophoneUsageDescription string Bedrock Voice Bridge uses your microphone for proximity voice chat.' ios/Runner/Info.plist
       - run: flutter pub get
       - run: flutter build ipa --no-codesign
       - uses: actions/upload-artifact@v4
-        with:
-          name: bvb-ios-unsigned-ipa
-          path: build/ios/ipa/*.ipa
-          if-no-files-found: warn
+        with: {name: bvb-1.0.0-ios-unsigned, path: build/ios/ipa/*.ipa, if-no-files-found: warn}
   windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
+        with: {channel: stable, cache: true}
       - run: flutter create --platforms=windows --project-name bedrock_voice_bridge .
       - run: flutter pub get
       - run: flutter build windows --release
       - shell: pwsh
-        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath bedrock-voice-bridge-windows.zip
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath bedrock-voice-bridge-1.0.0-windows.zip
       - uses: actions/upload-artifact@v4
-        with:
-          name: bvb-windows-app
-          path: bedrock-voice-bridge-windows.zip
+        with: {name: bvb-1.0.0-windows, path: bedrock-voice-bridge-1.0.0-windows.zip}
   plugin:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
+        with: {distribution: temurin, java-version: '21'}
       - uses: gradle/actions/setup-gradle@v4
       - run: gradle -p server-plugin clean build --no-daemon
       - uses: actions/upload-artifact@v4
-        with:
-          name: bvb-server-plugin
-          path: server-plugin/build/libs/*.jar
+        with: {name: bvb-1.0.0-server-plugin, path: server-plugin/build/libs/*.jar}
