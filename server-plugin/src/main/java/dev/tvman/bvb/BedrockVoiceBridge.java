@@ -46,6 +46,9 @@ public final class BedrockVoiceBridge extends JavaPlugin {
   VoiceSocket(InetSocketAddress address){super(address);}
   @Override public void onOpen(WebSocket conn, ClientHandshake handshake){conn.send("{\"type\":\"hello\",\"version\":\"1.0.0\"}");}
   @Override public void onMessage(WebSocket conn,String message) {
+   Bukkit.getScheduler().runTask(BedrockVoiceBridge.this, () -> handleMessage(conn, message));
+  }
+  private void handleMessage(WebSocket conn,String message) {
    try {
     JsonObject j=JsonParser.parseString(message).getAsJsonObject(); String type=j.has("type")?j.get("type").getAsString():"";
     if(type.equals("auth")) {
