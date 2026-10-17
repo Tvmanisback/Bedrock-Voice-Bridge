@@ -1,0 +1,12 @@
+name: BedrockVoiceBridge
+version: 0.1.0
+main: dev.tvman.bvb.BedrockVoiceBridge
+api-version: '1.21'
+softdepend: [voicechat, Geyser-Spigot]
+commands:
+  bvb:
+    description: Bedrock Voice Bridge status and pairing scaffold
+    usage: /bvb pair|status
+permissions:
+  bvb.pair:
+    default: true
