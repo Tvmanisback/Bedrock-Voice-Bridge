@@ -1,20 +1,31 @@
 # Bedrock Voice Bridge
 
-**Downloads: use GitHub Releases**
+**Bedrock Voice Bridge — Talk to your friends while you play.**
 
-Open [Releases](https://github.com/Tvmanisback/Bedrock-Voice-Bridge/releases) and download the published assets there. The workflow is configured to publish assets when a version tag such as `v1.0.0` is pushed.
+Bedrock Voice Bridge is made for Minecraft Bedrock players on supported multiplayer servers, including community servers like DonutSMP where server compatibility is available.
 
-## Project components
-- Bedrock add-on package (`.mcaddon`) for in-game companion information.
-- Windows microphone companion installer (`.exe`).
-- Android microphone companion APK.
-- Unsigned iOS IPA build (requires Apple signing to install).
-- Paper/Geyser server-side voice relay.
+## How it works
 
-## Important technical limitation
-A Bedrock resource/behavior pack cannot directly access the operating system microphone. The microphone must be captured by a separate native app. This repository is **not yet a verified, drop-in port of Simple Voice Chat**; the add-on cannot magically connect Bedrock's voice to Simple Voice Chat without a compatible server-side bridge and protocol implementation. The current server relay is a separate prototype, not Simple Voice Chat protocol support. Do not advertise this as a finished working mod until the complete flow is tested.
+1. Install the required **Bedrock Voice Bridge add-on** in Minecraft.
+2. Install the Bedrock Voice Bridge app on your device and allow microphone access.
+3. Join a supported server and follow the pairing instructions to connect.
 
-## Publishing a release
-Create and push a version tag (for example `v1.0.0`). GitHub Actions builds the platforms and attaches available assets to the GitHub Release. Users should download from the **Releases** page, not the Actions artifact page.
+The **add-on is required**. It is where the in-game voice settings and controls live, including mute options. The companion app is only for your microphone and audio connection.
 
-For public servers, use TLS/WSS, short-lived pairing codes, rate limits, and server-side identity validation before allowing real users to connect.
+**Coming soon:** support for worlds outside multiplayer servers.
+
+## Downloads
+
+Get the latest version from the [Bedrock Voice Bridge Releases page](https://github.com/Tvmanisback/Bedrock-Voice-Bridge/releases).
+
+Choose the download for your device:
+- **Windows:** Bedrock Voice Bridge installer
+- **Android:** Bedrock Voice Bridge app
+- **iOS:** Bedrock Voice Bridge app, when an installable signed release is available
+- **Minecraft Bedrock:** required Bedrock Voice Bridge add-on
+
+## Please note
+
+Only use Bedrock Voice Bridge on servers where you have permission to use companion voice chat. Server support can vary, so check that your server is compatible before installing.
+
+Bedrock Voice Bridge is an independent project and is not affiliated with Mojang, Microsoft, or DonutSMP.
