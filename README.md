@@ -1,30 +1,20 @@
-# Bedrock Voice Bridge 1.0.0
+# Bedrock Voice Bridge
 
-A proximity voice-chat companion for Minecraft Bedrock players who join a Java server through Geyser. The phone/desktop app is a microphone and speaker client; the Paper plugin pairs clients to in-game players and relays audio to nearby paired clients.
+**Downloads: use GitHub Releases, not Actions artifacts.**
 
-## Build artifacts
+Open [Releases](https://github.com/Tvmanisback/Bedrock-Voice-Bridge/releases) and download the published assets there. The workflow is configured to publish assets when a version tag such as `v1.0.0` is pushed.
 
-GitHub Actions builds:
-- Android release APK
-- Unsigned iOS IPA archive (requires Apple signing to install)
-- Windows release ZIP
-- Paper server plugin JAR
+## Project components
+- Bedrock add-on package (`.mcaddon`) for in-game companion information.
+- Windows microphone companion installer (`.exe`).
+- Android microphone companion APK.
+- Unsigned iOS IPA build (requires Apple signing to install).
+- Paper/Geyser server-side voice relay.
 
-Run Actions → **Build Bedrock Voice Bridge 1.0.0** or push a commit to `main`.
+## Important technical limitation
+A Bedrock resource/behavior pack cannot directly access the operating system microphone. The microphone must be captured by a separate native app. This repository is **not yet a verified, drop-in port of Simple Voice Chat**; the add-on cannot magically connect Bedrock's voice to Simple Voice Chat without a compatible server-side bridge and protocol implementation. The current server relay is a separate prototype, not Simple Voice Chat protocol support. Do not advertise this as a finished working mod until the complete flow is tested.
 
-## Server setup
+## Publishing a release
+Create and push a version tag (for example `v1.0.0`). GitHub Actions builds the platforms and attaches available assets to the GitHub Release. Users should download from the **Releases** page, not the Actions artifact page.
 
-1. Use a compatible Paper server with Geyser configured for Bedrock players.
-2. Install `bedrock-voice-bridge-1.0.0.jar` in `plugins/` and restart.
-3. Open TCP port `24454` (or set `websocket-port` in `plugins/BedrockVoiceBridge/config.yml`).
-4. In-game, run `/bvb pair`. The code expires in 120 seconds.
-5. In the app, enter the server WebSocket URL, Minecraft player name (display only), and code. Pairing code identifies the player.
-6. Keep the app open while playing. Only paired app clients within the configured proximity range receive each other's voice.
-
-## Security
-
-The plugin's WebSocket listener binds to all interfaces. For public servers, do not expose it directly to the internet: put it behind a TLS-enabled WebSocket reverse proxy and use `wss://`. The starter pairing codes are short-lived, but the current prototype does not include rate limiting, moderation controls, or a hardened identity/session system.
-
-## Compatibility and testing status
-
-This is a first test build, not a certified or production-hardened port of Simple Voice Chat. It implements an independent proximity voice relay between Bedrock/Java server players who also run this app; it does **not** inject audio into the Simple Voice Chat mod's native protocol. Every speaking/listening player must run the companion app. Verify the workflow builds successfully and test on a private server before distributing. iOS builds are unsigned.
+For public servers, use TLS/WSS, short-lived pairing codes, rate limits, and server-side identity validation before allowing real users to connect.
