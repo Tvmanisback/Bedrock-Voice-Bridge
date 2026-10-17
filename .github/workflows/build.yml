@@ -77,9 +77,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Package Bedrock add-on
         run: |
-          mkdir -p dist
+          mkdir -p dist/package
           cd bedrock-addon
-          zip -r ../dist/BedrockVoiceBridge-Addon-1.0.0.mcaddon .
+          zip -r ../dist/package/BedrockVoiceBridge-Addon-1.0.0.mcpack .
+          cd ../dist/package
+          zip ../BedrockVoiceBridge-Addon-1.0.0.mcaddon BedrockVoiceBridge-Addon-1.0.0.mcpack
       - uses: actions/upload-artifact@v4
         with: {name: bedrock-addon-test-build, path: dist/BedrockVoiceBridge-Addon-1.0.0.mcaddon}
   release:
